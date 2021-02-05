@@ -12,6 +12,7 @@ import json
 import asyncio
 import re
 import datetime
+from io import BytesIO
 
 #Opening JSON files and storing information as object variables
 with open('characters.json') as json_file:
@@ -94,7 +95,7 @@ async def Make15APIRequest(MessageText,CharacterIndex,message,RequestTries,FileN
         #print('response recevied!')            
         #Checking if the api responds with a 500/ server error message
         if response.status_code != 200:
-            print('15.ai response error!')
+            print('15.ai response error - none 200 response!')
             print(response.text)
             #Checking if 3 bad responses have been made and erroring as such
             if RequestTries >= 3:
@@ -107,25 +108,37 @@ async def Make15APIRequest(MessageText,CharacterIndex,message,RequestTries,FileN
                 asyncio.create_task(Make15APIRequest(MessageText,CharacterIndex,message,TempRequestTries,FileName))
         else:
             #Creating a wav file with the response content and posting the response on discord 
-            with open(FileName, 'wb') as file:
+            with open(FileName, 'wb+') as file:
                 #Saving the response as a wav file      
                 file.write(response.content)
             
                 #Text to be entered with file \/  file being specified \/
-                await message.channel.send('Test',file=discord.File(FileName))      
+                # await message.channel.send('Here you go ❤️',file=discord.File(FileName))      
                 #Debug checking status code of response (403 may mean there will need to be a change to the request)
                 #await message.channel.send(response.status_code)
+                if message.author.voice.channel:
+                    channel = message.author.voice.channel
+                    vc = await channel.connect()
+                    # audio = discord.AudioSource.read(file)
+                    # vc.play(audio)
+                    try:
+                        while True:
+                            vc.play(discord.PCMAudio(file))
+                    except Exception as exc:
+                        print("uh oh, stinky: %s", exc)
 
             #Removing the file once it has been posted
             #os.remove("test1.wav")
-            os.remove(FileName)
+            # os.remove(FileName)
             #print("File Removed!")
             #break
     except Exception as inst:
         print('15.ai response error!')
-        print(response.text)
+        print(inst)
+        # print(response.text)
+        # await message.channel.send('',file=discord.File(FileName))
         #Checking if 3 bad responses have been made and erroring as such
-        if RequestTries >= 3:
+        if RequestTries >= 0:
             await message.channel.send('Something went wrong with making a call to 15.ai!')
         else:
             #Waiting 10 seconds and sending the request again

@@ -513,6 +513,13 @@
             "use_diagonal":"true"
         },
         {
+            "Phrase": "Hey Black Mesa Announcer, say ",
+            "Character": "Black Mesa Announcer",
+            "Function": "0",
+            "Emotion":"Contextual",
+            "use_diagonal":"true"
+        },
+        {
             "Phrase": "Hey Twilight Sparkle, tell me about ",
             "Character": "Twilight Sparkle",
             "Function": "1",
